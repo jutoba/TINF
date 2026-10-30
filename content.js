@@ -966,37 +966,141 @@ window.CONTENT = (function () {
 
   /* ------------------------------------------------------------------ */
   const cheat = R`
-<div class="fbox"><span class="lbl">Entropía</span>
-\[ H(X)=-\sum p\log p \qquad 0\le H\le\log|\mathcal X| \]
-\[ H_3 = H_2/\log_23,\quad \log_23=1{,}585 \]
-\[ H(p)=-p\log p-(1-p)\log(1-p) \]</div>
-<div class="fbox"><span class="lbl">Dos variables</span>
+<div class="fbox"><span class="lbl">Entropía de una variable</span>
+<p class="small"><b>Entropía de Shannon</b>: información media de la fuente.</p>
+\[ H(X)=-\sum p_i\log p_i \qquad 0\le H\le\log|\mathcal X| \]
+<p class="small">0 si es determinista; máxima (\(\log|\mathcal X|\)) si es uniforme. Si faltan datos, <b>caso peor</b> = repartir lo desconocido a partes iguales.</p>
+<p class="small"><b>Función de entropía binaria \(H(p)\)</b>: es la entropía de una "moneda" que sale una cosa con probabilidad \(p\) y otra con \(1-p\). Se usa para la fila de una ráfaga (repetir o salir).</p>
+\[ H(p)=-p\log_2 p-(1-p)\log_2(1-p),\quad H(\tfrac12)=1,\ H(p)=H(1-p) \]
+<p class="small"><b>Cambio de base</b> (trits, quinarios…):</p>
+\[ H_D=\frac{H_2}{\log_2D},\quad \log_23=1{,}585,\ \log_25=2{,}322 \]
+<p class="small"><b>Agrupamiento</b> (\(X'\) = grupos de \(X\)): primero el grupo, luego el elemento.</p>
+\[ H(X)=H(X')+H(X/X') \]
+<p class="small">Ej.: fila de ráfaga que sale a \(k\) estados por igual: \(H(\text{fila})=H(p)+(1-p)\log_2k\).</p></div>
+
+<div class="fbox"><span class="lbl">Dos y tres variables</span>
+<p class="small"><b>Marginal y condicional</b>:</p>
+\[ p(x)=\textstyle\sum_y p(x,y),\quad p(x/y)=\dfrac{p(x,y)}{p(y)} \]
+<p class="small"><b>Entropía condicional</b>: media de las entropías de cada caso.</p>
+\[ H(Y/X)=\textstyle\sum_x p(x)\,H(Y/X=x) \]
+<p class="small"><b>Regla de la cadena</b>:</p>
 \[ H(X,Y)=H(X)+H(Y/X) \]
+\[ H(X_1,\dots,X_n)=\textstyle\sum_i H(X_i/X_{i-1},\dots,X_1) \]
+\[ H(X/Y,Z)=H(X,Y,Z)-H(Y,Z) \]
+<p class="small"><b>Información mutua</b>: lo que una variable dice de la otra (intersección del Venn).</p>
 \[ I(X;Y)=H(X)-H(X/Y)=H(X)+H(Y)-H(X,Y) \]
-\[ D(p\|q)=\sum p\log\tfrac pq\ \ge0 \]
-\[ H(X/Y)\le H(X),\quad H(X,Y)\le H(X)+H(Y) \]</div>
-<div class="fbox"><span class="lbl">Códigos</span>
-\[ L=\sum p_il_i,\quad \eta=H_D/L \]
-\[ \text{Kraft: } \sum D^{-l_i}\le1 \]
+\[ I(X;Y)=\textstyle\sum p(x,y)\log\frac{p(x,y)}{p(x)p(y)},\quad I(X;X)=H(X) \]
+<p class="small"><b>Información mutua condicionada</b>:</p>
+\[ I(X;Y/Z)=H(X,Z)+H(Y,Z)-H(X,Y,Z)-H(Z) \]
+<p class="small"><b>Entropía relativa</b> (Kullback-Leibler): bits de más por suponer \(q\) cuando es \(p\). No simétrica.</p>
+\[ D(p\|q)=\textstyle\sum p\log\frac pq,\quad I(X;Y)=D\big(p(x,y)\|p(x)p(y)\big) \]</div>
+
+<div class="fbox"><span class="lbl">Teoremas de entropía</span>
+<p class="small"><b>Desigualdad de Gibbs</b> (información): \(D(p\|q)\ge0\), \(=0\iff p=q\). De ahí \(I(X;Y)\ge0\), \(=0\iff\) independientes.</p>
+<p class="small"><b>Condicionar reduce la entropía</b> (en media; un caso concreto \(H(X/Y=y)\) puede ser mayor):</p>
+\[ H(X/Y)\le H(X) \]
+<p class="small"><b>Subaditividad</b> (igualdad si independientes):</p>
+\[ H(X,Y)\le H(X)+H(Y) \]
+<p class="small"><b>Relación markoviana</b> \(X\to Y\to Z\):</p>
+\[ X\to Y\to Z\iff I(X;Z/Y)=0\iff p(x,z/y)=p(x/y)p(z/y) \]
+<p class="small"><b>Teorema del proceso de información</b>: procesar no crea información.</p>
+\[ X\to Y\to Z\ \Rightarrow\ I(X;Z)\le I(X;Y),\ I(X;Z)\le I(Y;Z) \]
+<p class="small"><b>Desigualdad de Jensen</b>: \(f\) "cóncava" de clase (\(x^2\)) ⇒ \(E[f(X)]\ge f(E[X])\); con \(\log\) se invierte.</p></div>
+
+<div class="fbox"><span class="lbl">Códigos: medidas</span>
+<p class="small"><b>Longitud media</b>, <b>eficiencia</b> y <b>redundancia</b> (todo en la misma unidad):</p>
+\[ L=\textstyle\sum p_il_i,\qquad \eta=\dfrac{H_D}{L},\qquad R=\dfrac{L-H}{H}\ (\text{o }1-\eta) \]
+<p class="small"><b>Pasar a bits</b> un código D-ario (para comparar binario con ternario):</p>
+\[ L_{\text{sb}}=L_D\cdot\log_2D \]
+<p class="small"><b>Desigualdad de Kraft</b>: existe código prefijo D-ario con esas longitudes ⇔</p>
+\[ \textstyle\sum D^{-l_i}\le1 \]
+<p class="small"><b>Teorema de McMillan</b>: todo código UD cumple Kraft. No se gana nada con UD no prefijos.</p>
+<p class="small"><b>Recortar</b>: solo si Kraft \(\lt1\) (Shannon suele poderse; Huffman y Fano son completos, Kraft = 1).</p>
+<p class="small"><b>Clases</b>: prefijo ⊂ UD ⊂ no singular. Sardinas-Patterson: UD ⇔ \(C\cap C_\infty=\varnothing\).</p></div>
+
+<div class="fbox"><span class="lbl">Teoremas de códigos</span>
+<p class="small"><b>Primer teorema de Shannon</b> (codificación fuente): para todo código UD,</p>
+\[ L\ge H_D(X),\quad L=H_D\iff p_i=D^{-l_i}\ (\text{distribución }D\text{-ádica}) \]
+<p class="small"><b>Extensión</b> (bloques de \(n\) símbolos): la eficiencia sube, pero la tabla crece como \(|\mathcal X|^n\).</p>
+\[ H\le\frac{L_n}n\lt H+\frac1n \]
+<p class="small"><b>Código desacoplado</b> (diseñado con \(q\), real \(p\)):</p>
+\[ H(p)+D(p\|q)\le L\lt H(p)+D(p\|q)+1 \]
+<p class="small"><b>Propiedades de Huffman</b> del código óptimo: 1) más probable ⇒ más corta; 2) las dos más largas tienen igual longitud y son de los dos menos probables.</p></div>
+
+<div class="fbox"><span class="lbl">Construcción de códigos</span>
+<p class="small"><b>Huffman</b> (óptimo, no alfabético): agrupa los \(D\) menos probables y reordena.</p>
 \[ H_D\le L_{Huff}\lt H_D+1 \]
-\[ \text{Shannon: } l=\lceil\log_D 1/p\rceil \]
-\[ \text{SFE: } \bar F=F_{ant}+p/2,\ l=\lceil\log1/p\rceil+1 \]
-\[ \text{Fantasmas: } (N-1)\bmod(D-1)=0 \]</div>
-<div class="fbox"><span class="lbl">Markov</span>
-\[ P_{ij}=P(X_{n+1}=j/X_n=i),\quad \vec\mu^{(n+1)}=\vec\mu^{(n)}\Pi \]
-\[ \vec\mu_E=\vec\mu_E\Pi,\ \textstyle\sum\mu=1 \]
-\[ \text{H+I}\Rightarrow\vec\mu_E\text{ única};\ \text{H+I+A}\Rightarrow\text{converge} \]
-\[ H(\mathcal X)=\textstyle\sum_i\mu_iH(\text{fila }i)\le H(\vec\mu_E) \]
-\[ \bar L_{trans}=\textstyle\sum_i\mu_iL_i \]</div>
-<div class="fbox"><span class="lbl">Ráfagas (RLE)</span>
-\[ p=\frac{L_R-1}{L_R},\quad P(l)=(1-p)p^{l-1} \]
-\[ p^m\approx\tfrac12,\quad k=\lfloor\tfrac{l-1}m\rfloor,\ r=(l-1)\bmod m \]
-\[ L_G=\frac1{1-p^m},\quad L_{SG}\approx\log_2m \]
-\[ \text{bits/símbolo}=\frac{L_G+L_{SG}}{L_R} \]</div>
+<p class="small"><b>Fantasmas en Huffman D-ario</b>: tiene que quedar \(N=K(D-1)+1\). Condición:</p>
+\[ (N-1)\bmod(D-1)=0\ \Rightarrow\ \text{0 fantasmas} \]
+<p class="small"><b>Número de fantasmas</b> (si el resto no es 0):</p>
+\[ n_f=(D-1)-\big[(N-1)\bmod(D-1)\big] \]
+\[ \text{o bien: } K=\left\lceil\tfrac{N-1}{D-1}\right\rceil,\quad n_f=K(D-1)+1-N \]
+<p class="small">Ej.: \(N=8,D=3\): \(7\bmod2=1\) → 1 fantasma. \(N=10,D=5\): \(9\bmod4=1\) → 3 fantasmas. Probabilidad 0. En binario nunca.</p>
+<p class="small"><b>Fano</b> (alfabético si no reordenas): corta donde las dos mitades sumen lo más parecido.</p>
+<p class="small"><b>Código de Shannon</b>: ordena, acumula \(F\), palabra = \(F\) en binario con</p>
+\[ l=\left\lceil\log_D\tfrac1p\right\rceil,\qquad H_D\le L\lt H_D+1 \]
+<p class="small"><b>Shannon-Fano-Elias</b> (alfabético, sin ordenar):</p>
+\[ \bar F=F_{ant}+\tfrac p2,\quad l=\left\lceil\log\tfrac1p\right\rceil+1,\quad L\lt H+2 \]</div>
+
+<div class="fbox"><span class="lbl">Markov: modelo</span>
+<p class="small"><b>Matriz de transición</b> (filas suman 1) y <b>evolución</b>:</p>
+\[ P_{ij}=P(X_{n+1}=j/X_n=i) \]
+\[ \vec\mu^{(n+1)}=\vec\mu^{(n)}\Pi,\quad \vec\mu^{(n)}=\vec\mu^{(1)}\Pi^{\,n-1} \]
+<p class="small">Si \(\vec\mu^{(1)}=(1,0,\dots)\), \(\vec\mu^{(2)}\) es la primera fila.</p>
+<p class="small"><b>Distribución estacionaria</b>: quita una ecuación y añade \(\sum\mu=1\).</p>
+\[ \vec\mu_E=\vec\mu_E\Pi,\quad \textstyle\sum\mu_i=1,\quad \mu_j=\sum_i\mu_iP_{ij} \]
+<p class="small"><b>Doblemente estocástica</b> (columnas también suman 1) ⇒ \(\vec\mu_E\) uniforme.</p>
+<p class="small"><b>Columnas iguales</b> en Π ⇒ esos \(\mu\) son iguales. Estado al que solo se llega desde otro con prob. 1 ⇒ mismo \(\mu\).</p>
+<p class="small"><b>Ráfagas de longitud media \(L_R\)</b>:</p>
+\[ P_{ii}=\frac{L_R-1}{L_R},\quad \text{salir}=\frac1{L_R} \]
+<p class="small">Si las salidas se reparten igual entre los demás: \(\mu_i\propto L_{R,i}\).</p>
+<p class="small"><b>Orden m → orden 1</b>: estado = últimos \(m\) símbolos. Restricciones ("A en parejas") → estados extra (A', A).</p>
+<p class="small"><b>Varios estados, mismo símbolo</b>: \(P(\text{símbolo})=\sum\mu\) de esos estados.</p>
+<p class="small"><b>Salto que no depende del estado</b>: matriz con todas las filas iguales.</p></div>
+
+<div class="fbox"><span class="lbl">Markov: teoremas</span>
+<p class="small"><b>Clasificación</b>: homogénea (Π fija), irreducible (todos alcanzables), aperiódica (MCD de vueltas = 1; basta un \(P_{ii}\gt0\) si es irreducible).</p>
+<p class="small"><b>Teorema de unicidad</b>:</p>
+\[ \text{H+I}\Rightarrow\vec\mu_E\text{ única} \]
+<p class="small"><b>Teorema de convergencia</b> (para cualquier \(\vec\mu^{(1)}\)):</p>
+\[ \text{H+I+A}\Rightarrow\vec\mu^{(n)}\to\vec\mu_a=\vec\mu_E \]
+<p class="small"><b>Estacionariedad</b> (CM homogénea): estacionaria \(\iff\vec\mu^{(1)}=\vec\mu^{(2)}\iff\vec\mu^{(1)}=\vec\mu_E\). Si no te dan \(\vec\mu^{(1)}\): "no se puede saber".</p>
+<p class="small"><b>CM1 es markoviana</b>: \(I(X_n;X_{n+2}/X_{n+1})=0\) ⇒ \(X_n\to X_{n+1}\to X_{n+2}\).</p></div>
+
+<div class="fbox"><span class="lbl">Tasa de entropía y codificación</span>
+<p class="small"><b>Tasa de entropía</b> (las dos coinciden si es estacionaria):</p>
+\[ H(\mathcal X)=\lim\tfrac1nH(X_1,\dots,X_n),\quad H'(\mathcal X)=\lim H(X_n/X_{n-1},\dots) \]
+<p class="small"><b>Tasa de una CM1</b>:</p>
+\[ H(\mathcal X)=H(X_2/X_1)=\textstyle\sum_i\mu_iH(\text{fila }i)\le H(\vec\mu_E) \]
+<p class="small"><b>Símbolo aislado</b> (tras converger): \(H(\vec\mu_E)\).</p>
+<p class="small"><b>Por estados</b> (mínima latencia, Huffman sobre \(\vec\mu_E\)) y <b>por transiciones</b> (un Huffman por fila; primer símbolo con código fijo):</p>
+\[ \bar L_{est}=\textstyle\sum\mu_il_i\ge H(\vec\mu_E),\qquad \bar L_{trans}=\sum_i\mu_iL_i\ge H(\mathcal X) \]
+<p class="small">Fila con una sola salida: 0 bits. Fila diádica: \(L_i=H(\text{fila})\).</p>
+<p class="small"><b>Cadena no homogénea periódica</b> (periodo τ):</p>
+\[ H(\mathcal X)=\frac{H(X_1)+H(X_2/X_1)+\dots+H(X_\tau/X_{\tau-1})}{\tau} \]
+<p class="small"><b>Mensajes de longitud variable</b> (a, ab, abc):</p>
+\[ H(\mathcal X)=\frac{H(\text{mensaje})}{E[\text{letras/mensaje}]},\quad P(a)=\frac{\text{a por mensaje}}{E[\text{letras}]} \]</div>
+
+<div class="fbox"><span class="lbl">Ráfagas (RLE, código de Golomb)</span>
+<p class="small"><b>Distribución geométrica</b> de la longitud de ráfaga:</p>
+\[ P(l)=(1-p)p^{l-1},\quad L_R=\frac1{1-p},\quad p=\frac{L_R-1}{L_R} \]
+<p class="small"><b>Elección de m</b> (\(p^m\) lo más cerca de 1/2):</p>
+\[ p^m\approx\tfrac12\ \Rightarrow\ m\approx\frac{-1}{\log_2p}=\frac{\ln2}{-\ln p} \]
+<p class="small"><b>Palabra</b> = preámbulo (\(k\) unos y un 0) + resto:</p>
+\[ k=\left\lfloor\tfrac{l-1}m\right\rfloor,\quad r=(l-1)\bmod m \]
+<p class="small"><b>Longitudes</b>: preámbulo y resto (fijo con \(\lceil\log_2m\rceil\) bits, o Huffman ≈ \(\log_2m\)):</p>
+\[ L_G=\frac1{1-p^m}\approx2,\quad L_{SG}=\lceil\log_2m\rceil \]
+<p class="small"><b>Bits por símbolo</b> (+1 bit si tras la ráfaga hay que elegir entre 2 estados):</p>
+\[ L_i=\frac{L_G+L_{SG}+\text{bits de salida}}{L_R} \]
+<p class="small">Merece la pena cuando \(P_{ii}\gt\tfrac12\): Huffman nunca baja de 1 bit/símbolo. \(m=1\) → código unario.</p></div>
+
 <div class="fbox"><span class="lbl">Calculadora</span>
 \[ \log_2x=\ln x/\ln2,\quad \ln2=0{,}6931,\ \ln3=1{,}0986 \]
+<p class="small"><b>Serie geométrica</b> ("un 10 % más que el siguiente"): \(\sum_{k=0}^{n-1}r^k=\dfrac{r^n-1}{r-1}\).</p>
 <p class="small">Decimal a binario: multiplica por 2; si pasa de 1, apunta 1 y resta 1; si no, apunta 0.</p>
-<p class="small">Entropías útiles: \(H(\tfrac12,\tfrac14,\tfrac14)=1{,}5\); \(H(\tfrac12,\tfrac14,\tfrac18,\tfrac18)=1{,}75\); \(H(0{,}8;0{,}2)=0{,}722\); \(H(0{,}9;0{,}1)=0{,}469\); \(\log_23=1{,}585\); \(\log_25=2{,}322\); \(\log_26=2{,}585\).</p></div>
+<p class="small">\(H(\tfrac12,\tfrac14,\tfrac14)=1{,}5\); \(H(\tfrac12,\tfrac14,\tfrac18,\tfrac18)=1{,}75\); \(H(\tfrac13)=0{,}918\); \(H(0{,}6)=0{,}971\); \(H(0{,}7)=0{,}881\); \(H(0{,}75)=0{,}811\); \(H(0{,}8)=0{,}722\); \(H(0{,}9)=0{,}469\); \(H(0{,}95)=0{,}286\).</p>
+<p class="small">\(\log_23=1{,}585\); \(\log_25=2{,}322\); \(\log_26=2{,}585\); \(\log_27=2{,}807\).</p></div>
+
 <div class="fbox"><span class="lbl">Cómo justificar en el examen</span>
 <p class="small">Clasificar: "homogénea porque Π no depende del tiempo; irreducible porque…(camino); aperiódica porque \(P_{ii}>0\)". Comparar códigos: misma unidad, eficiencia y \(H\le L\). Siempre unidades: sb/mensaje, st/mensaje, bits/símbolo.</p></div>`;
 
